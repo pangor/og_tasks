@@ -1,0 +1,6 @@
+name = Organic groups tasks
+description = "Provides a framework for adding administrative tasks to organic groups."
+package = "Organic groups"
+dependencies[] = og
+core = 7.x
+files[] = includes/task.inc
