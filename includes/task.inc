@@ -10,7 +10,8 @@ class og_task {
   public $required = FALSE;
   public $completed = FALSE;
   public $callback = NULL;
-  
+  public $file = NULL;
+
   public function __construct($options = array()) {
     foreach ($options as $key => $value) {
       if (property_exists($this, $key)) {
@@ -24,17 +25,28 @@ class og_task {
     return $status;
   }
 
+  public function get_callback_string() {
+    if (is_array($this->callback)) {
+      return $this->callback[0] .'::'. $this->callback[1];
+    }
+    return $this->callback;
+  }
+
   public function execute($entity, &$context) {
     if ($this->completed) {
       return FALSE;
     }
 
+    if (!empty($this->file)) {
+      require_once($this->file);
+    }
+
     if (is_callable($this->callback)) {
-      debug(__FUNCTION__);
       call_user_func($this->callback, $entity, $this, $context);
     }
     else {
-      debug($this->callback, 'not callable');
+      watchdog('og_tasks', 'Invalid callback: the callback (%callback) specified by the %title task is not callable.', 
+        array('%callback' => $this->get_callback_string(), '%title' => $this->title), WATCHDOG_ERROR);
     }
   }
 }

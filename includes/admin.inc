@@ -72,12 +72,19 @@ function og_tasks_form_submit($form, &$form_state) {
   $all_tasks = og_tasks_get_tasks($entity_type, $entity);
 
   $tasks = array();
-  foreach ($form_state['values']['tasks'] as $key) {
-    $tasks[$key] = $all_tasks[$key];
+  foreach ($form_state['values']['tasks'] as $key => $selected) {
+    if ($selected) {
+      $tasks[$key] = $all_tasks[$key];
+    }
   }
 
-  $batch = og_tasks_get_batch($entity, $tasks);
-  batch_set($batch);
+  if (!empty($tasks)) {
+    $batch = og_tasks_get_batch($entity, $tasks);
+    batch_set($batch);
+  }
+  else {
+    drupal_set_message(t('Please select a task first.'));
+  }
 
   // energy_offices_term_make_site_menu($term, $form, $form_state);
   // drupal_goto('taxonomy/term/' . $term->tid);
