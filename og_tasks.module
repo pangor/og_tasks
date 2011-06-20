@@ -84,3 +84,28 @@ function og_tasks_admin_paths() {
   );
 }
 
+/**
+ * Implements hook_og_group_insert().
+ */
+function og_tasks_entity_insert($entity, $type) {
+  if ($type != 'group') {
+    return;
+  }
+
+  // Get all required tasks for the attached entity.  Keep in mind that in the
+  // current context, $entity is the group entity.
+  $tasks = array();
+  $attached_entity = $entity->getEntity();
+  $all_tasks = og_tasks_get_tasks($entity->entity_type, $attached_entity);
+  foreach ($all_tasks as $key => $task) {
+    if ($task->required) {
+      $tasks[$key] = $task;
+    }
+  }
+
+  if (!empty($tasks)) {
+    module_load_include('inc', 'og_tasks', 'includes/admin');
+    $batch = og_tasks_get_batch($attached_entity, $tasks);
+    batch_set($batch);
+  }
+}
